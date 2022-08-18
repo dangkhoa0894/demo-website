@@ -7,7 +7,7 @@ orbs:
 jobs:
   build-and-push:
       environment:
-        DOCKER_IMAGE: dangkhoa0894/demo-website
+        DOCKER_IMAGE: dangkhoa0894/react-docker
         DOCKER_TAG: latest
       executor: docker/docker
       steps:
