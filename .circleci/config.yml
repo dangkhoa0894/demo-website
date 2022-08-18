@@ -36,4 +36,4 @@ workflows:
               - node/test
             branches:
               only:
-                - master
+                - main
