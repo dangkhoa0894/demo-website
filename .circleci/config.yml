@@ -1,33 +1,39 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# # Define a job to be invoked later in a workflow.
-# # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-# jobs:
-#   say-hello:
-#     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-#     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-#     docker:
-#       - image: cimg/base:stable
-#     # Add steps to the job
-#     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-#     steps:
-#       - checkout
-#       - run:
-#           name: "Say hello"
-#           command: "echo Hello, World!"
-
-# workflows:
-#   say-hello-workflow:
-#     jobs:
-#       - say-hello
-
-
 orbs:
   node: circleci/node@3.0.0
+  docker: circleci/docker@1.4.0
+jobs:
+  build-and-push:
+      environment:
+        DOCKER_IMAGE: dangkhoa0894/react-ci-demo
+        DOCKER_TAG: latest
+      executor: docker/docker
+      steps:
+        - setup_remote_docker
+        - checkout
+        - docker/check
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASSWORD
+        - docker/build:
+            image: $DOCKER_IMAGE
+            tag: $DOCKER_TAG
+        - docker/push:
+            digest-path: /tmp/digest.txt
+            image: my_repo/orb-test
+        - run:
+            command: |
+              echo "Digest is: $(</tmp/digest.txt)"
 
 workflows:
-  node-tests:
+  my-pipeline:
     jobs:
       - node/test
+      - build-and-push
+          filters:
+            requires:
+              - node/test
+            branches:
+              only:
+                - master
